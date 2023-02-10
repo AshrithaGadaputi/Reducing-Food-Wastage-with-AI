@@ -39,7 +39,7 @@ streamlit_style = """
 
 st.markdown(streamlit_style, unsafe_allow_html=True)
 
-@st.experimental_singleton(suppress_st_warning=True)
+#@st.experimental_singleton(suppress_st_warning=True)
 def init_connection():
     return MongoClient("mongodb+srv://ashritha23gadaputi:mongo@mongo.buxouxw.mongodb.net/test")
 
