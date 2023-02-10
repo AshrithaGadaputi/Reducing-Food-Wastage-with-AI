@@ -216,7 +216,7 @@ if authentication_status :
                 fig6=px.bar(df6,x='Food',y='Actual_Carbs')
                 st.plotly_chart(fig6)
 
-   if choice=="🌍 NGO Connectivity":
+    if choice=="🌍 NGO Connectivity":
         place = st.text_input("Enter the address of the restaurant")
         st.markdown(place)
         if place is not None:
