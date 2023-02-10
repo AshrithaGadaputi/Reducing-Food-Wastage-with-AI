@@ -11,8 +11,6 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import pandas as pd
 from keras import backend as K
-#import pywhatkit
-#from datetime import datetime
 from PIL import Image
 import pickle
 from pathlib import Path
@@ -39,7 +37,7 @@ streamlit_style = """
 
 st.markdown(streamlit_style, unsafe_allow_html=True)
 
-#@st.experimental_singleton(suppress_st_warning=True)
+@st.experimental_singleton(suppress_st_warning=True)
 def init_connection():
     return MongoClient("mongodb+srv://ashritha23gadaputi:mongo@mongo.buxouxw.mongodb.net/test")
 
