@@ -12,4 +12,4 @@ pandas
 pillow
 pathlib
 requests
-json
+
