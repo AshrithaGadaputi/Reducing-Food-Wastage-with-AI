@@ -19,8 +19,8 @@ from pathlib import Path
 import streamlit_authenticator
 import requests
 import json
-#import pywhatkit
-#from datetime import datetime
+import pywhatkit
+from datetime import datetime
 from pymongo import MongoClient
 
 def get_user_data(api):
@@ -216,29 +216,40 @@ if authentication_status :
                 fig6=px.bar(df6,x='Food',y='Actual_Carbs')
                 st.plotly_chart(fig6)
 
-    if choice=="🌍 NGO Connectivity":
+   if choice=="🌍 NGO Connectivity":
         place = st.text_input("Enter the address of the restaurant")
-        #st.markdown(place)
+        st.markdown(place)
         if place is not None:
             print(place)
             str1 = "https://atlas.microsoft.com/search/address/json?subscription-key=BBda83GkjJ--03W4DN-VqgzlkSfqxdfzZfbhAGL-Zyg&api-version=1.0&query="
             str2 = str1+place
-            coordinates = get_user_data(str2)
-
+            coordinates = get_user_data(str2) 
             latitude = coordinates['results'][0]['position']['lat']
             longitude = coordinates['results'][0]['position']['lon']
             # print(coordinates['results'][0]['position'])
-            dicto = get_user_data("https://atlas.microsoft.com/search/poi/category/json?subscription-key=BBda83GkjJ--03W4DN-VqgzlkSfqxdfzZfbhAGL-Zyg&api-version=1.0&query=NON_GOVERNMENTAL_ORGANIZATION&limit=20&lat="+str(latitude)+"&lon="+str(longitude))
+            dicto = get_user_data("https://atlas.microsoft.com/search/poi/category/json?subscription-key=BBda83GkjJ--03W4DN-VqgzlkSfqxdfzZfbhAGL-Zyg&api-version=1.0&query=NON_GOVERNMENTAL_ORGANIZATION&limit=30&lat="+str(latitude)+"&lon="+str(longitude))
             l = []
             key = 'phone'
-            for i in range(0,20):
+            for i in range(0,30):
                 if key in dicto['results'][i]['poi']:
                 #print(dict['results'][i]['poi']['name'])
                     l.append({dicto['results'][i]['poi']['name'] : [dicto['results'][i]['poi']['phone'], dicto['results'][i]['dist']]})
-            st.markdown(l)
 
-            #now = datetime.now()
-            #pywhatkit.sendwhatmsg('+91 9481634956',"Hi this is "+str('John'),now.hour,now.minute+1)
+            for Ngo in l:
+                k = []
+                v = []
+                d = []
+                for Ngo in l:
+                    k.append(list(Ngo.keys()))
+                    v.append(list((Ngo.values()))[0][0])
+                    d.append(list((Ngo.values()))[0][1])
+
+            for i in range(min(len(l),3)):
+                st.markdown(str(k[i][0])+" : "+str(v[i])+"   Distance : "+str(d[i])+" meters")
+
+            now = datetime.now()+timedelta(minutes=1.2)
+            #pywhatkit.sendwhatmsg('+91 9481634956',"Hi this is "+str('John'),now.hour,now.minute,15,True,3)
+            pywhatkit.sendwhatmsg('+91 9481634956',"Hi. We have food remaining and would like to donate it today. Please respond to initiate further communication.",now.hour,now.minute,15,True,3)
 
 
     if choice=="FAQ's":
