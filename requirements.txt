@@ -10,7 +10,6 @@ matplotlib
 plotly
 pandas
 pillow
-pickle
 pathlib
 requests
 json
