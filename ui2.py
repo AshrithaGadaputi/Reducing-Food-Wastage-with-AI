@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import cv2
 import numpy as np
 import streamlit as st
@@ -108,7 +109,7 @@ if authentication_status :
                     1: 'Neutral',
                     2: 'Positive'}
             map_dict_gender = {0: 'Male',
-                    1: 'Male'}
+                    1: 'Female'}
             map_dict_age = {0: 'Between 0 and 20 years',
                     1: 'Between 20 and 45 years',
                     2: 'Above 45 years'}
@@ -177,6 +178,8 @@ if authentication_status :
                             i=i+1
                     st.title("Predicted gender for the image is {}".format(map_dict_gender[label2]))
                     st.title("Predicted age for the image is {}".format(map_dict_age[label3]))
+                    db=client.mydb
+                    db.customer.updateOne({"_id":{ "$oid": "63e69468c0b93e30fcc783db" }},{"$inc":{"pages":1}})
                     st.text("")
 
     if choice=="🙍 Information":
@@ -260,5 +263,7 @@ if authentication_status :
         image_faq = Image.open("FAQ.jpg") 
         st.image(image_faq,width=650)  
                
+
+        
 
         
