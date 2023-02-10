@@ -9,7 +9,7 @@ joblib
 matplotlib
 plotly
 pandas
-PIL
+pil
 pickle
 pathlib
 requests
