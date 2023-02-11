@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import cv2
 import numpy as np
 import streamlit as st
@@ -19,7 +20,8 @@ import streamlit_authenticator
 import requests
 import json
 import pywhatkit
-from datetime import datetime
+from datetime import datetime,timedelta
+import base64
 from pymongo import MongoClient
 
 def get_user_data(api):
@@ -35,16 +37,43 @@ streamlit_style = """
             }
             </style>
             """
-
+#database
 st.markdown(streamlit_style, unsafe_allow_html=True)
 
-
+#@st.experimental_singleton(suppress_st_warning=True)
 def init_connection():
     return MongoClient("mongodb+srv://ashritha23gadaputi:mongo@mongo.buxouxw.mongodb.net/test")
 
 client = init_connection()
 
+#CellStratHub
 
+API_KEY_gender = "nWwhLFuF3s62S5ofQ2fPE8UfKTLz7Zmr1FndInjF"
+
+headers_gender = {
+    "x-api-key": API_KEY_gender,
+    "Content-Type": "application/json"
+}
+
+API_KEY_emotion = "PYRBRccJ2i9mYTS3BEEIoyGeclBDVcg7muwgbo60"
+
+headers_emotion = {
+    "x-api-key": API_KEY_emotion,
+    "Content-Type": "application/json"
+}
+
+API_KEY_age = "nOex3H4SWi1P46UwDtN7W26tPVvtakJt5i3fFuYX"
+
+headers_age = {
+    "x-api-key": API_KEY_age,
+    "Content-Type": "application/json"
+}
+
+endpoint_gender = "https://qiyvjvwm57flqmhhawjq4t4y3u0djofs.lambda-url.us-east-1.on.aws/hrithik/dl"
+endpoint_emotion = "https://qiyvjvwm57flqmhhawjq4t4y3u0djofs.lambda-url.us-east-1.on.aws/hrithik/dl-emotion"
+endpoint_age = "https://qiyvjvwm57flqmhhawjq4t4y3u0djofs.lambda-url.us-east-1.on.aws/hrithik/dl-age"
+
+st.markdown(streamlit_style, unsafe_allow_html=True)
 
 #Authentication 
 
@@ -80,7 +109,7 @@ if authentication_status == None:
     st.warning("Please enter your username and password")
 
 if authentication_status : 
-    st.title("🍔 EMOTION-BASED FOOD RECOMMENDATION SYSTEM")
+    st.title("🍔 EMOTION-BASED FOOD RECOMMENDATION + ")
     menu = ["🏠 Home","🍞 Food","🌍 NGO Connectivity","🙍 Information"]
 
     authenticator.logout("Logout", "sidebar")
@@ -98,10 +127,6 @@ if authentication_status :
         ch = st.selectbox("Select an option",menu1)
         st.text("")
         if ch == "Emotion-based Food Recommendation":
-            faceDetect=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-            model1 = tf.keras.models.load_model("final_model_file.h5")
-            model2 = tf.keras.models.load_model("gender_model.h5")
-            model3 = tf.keras.models.load_model("age_model.h5")
             ### load file
             uploaded_file = st.file_uploader("Choose an image file", type="jpg")
         
@@ -110,77 +135,63 @@ if authentication_status :
                     2: 'Positive'}
             map_dict_gender = {0: 'Male',
                     1: 'Female'}
-            map_dict_age = {0: 'Between 0 and 20 years',
-                    1: 'Between 20 and 45 years',
+            map_dict_age = {0: 'Between 0 and 25 years',
+                    1: 'Between 25 and 45 years',
                     2: 'Above 45 years'}
 
             if uploaded_file is not None:
             # Convert the file to an opencv image.
-                file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
-                opencv_image = cv2.imdecode(file_bytes, 1)
-                opencv_image = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2RGB)
-                # resized = cv2.resize(opencv_image,(224,224))
-                # Now do something with the image! For example, let's display it:
-                st.image(opencv_image, channels="RGB")
-
-                gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
-
-                Generate_pred = st.button("Generate Prediction")    
-                if Generate_pred:
-                    faces= faceDetect.detectMultiScale(gray, 1.3, 3)
-                    x,y,w,h = faces[0]
-                    # for x,y,w,h in faces[0][0]:
-                    sub_face_img=gray[y:y+h, x:x+w]
-                    resized=cv2.resize(sub_face_img,(48,48))
-                    normalize=resized/255.0
-                    reshaped=np.reshape(normalize, (1, 48, 48, 1))
-                    result1=model1.predict(reshaped) #emotion
-                    result2=model2.predict(reshaped) #gender
-                    result3=model3.predict(reshaped) #age
-                    label1=np.argmax(result1, axis=1)[0]
-                    label2=np.argmax(result2, axis=1)[0]
-                    label3=np.argmax(result3, axis=1)[0]
-                    # prediction = model.predict(img_reshape).argmax()
-                    st.title("Predicted emotion for the image is {}".format(map_dict_emotion[label1])) 
-                    st.text("")
-                    if label1==0:
-                        def get_data():
-                            db = client.mydb #establish connection to the 'sample_guide' db
-                            items = db.result_table.find({'flavor':'Protein/Fiber'},{'foodname':1,'_id':0}) # return all result from the 'planets' collection
-                            items = list(items)        
-                            return items
-                        data = get_data()
-                        i=0
-                        for items in data:
-                            st.subheader(f"{data[i]} ")
-                            i=i+1
-                    if label1==1:
-                        def get_data():
-                            db = client.mydb #establish connection to the 'sample_guide' db
-                            items = db.result_table.find({'flavor':'Cereals'},{'foodname':1,'_id':0}) # return all result from the 'planets' collection
-                            items = list(items)        
-                            return items
-                        data = get_data()
-                        i=0
-                        for items in data:
-                            st.subheader(f"{data[i]} ")
-                            i=i+1
-                    if label1==2:
-                        def get_data():
-                            db = client.mydb #establish connection to the 'sample_guide' db
-                            items = db.result_table.find({'flavor':'Fast foods'},{'foodname':1,'_id':0}) # return all result from the 'planets' collection
-                            items = list(items)        
-                            return items
-                        data = get_data()
-                        i=0
-                        for items in data:
-                            st.subheader(f"{data[i]} ")
-                            i=i+1
-                    st.title("Predicted gender for the image is {}".format(map_dict_gender[label2]))
-                    st.title("Predicted age for the image is {}".format(map_dict_age[label3]))
-                    db=client.mydb
-                    db.customer.updateOne({"_id":{ "$oid": "63e69468c0b93e30fcc783db" }},{"$inc":{"pages":1}})
-                    st.text("")
+                a = uploaded_file.read()
+                st.image(a, channels="RGB")
+                file_bytes = base64.b64encode(a).decode('utf-8')
+                payload = {
+                'image' : file_bytes
+                }
+                response_emotion = requests.post(endpoint_emotion,headers=headers_emotion,json=payload).json()
+                response_gender = requests.post(endpoint_gender,headers=headers_gender,json=payload).json()
+                response_age = requests.post(endpoint_age,headers=headers_age,json=payload).json()
+                #print(response_emotion)
+                #print(response_gender)
+                #print(response_age)
+                st.title("Predicted emotion for the image is {}".format(map_dict_emotion[response_emotion['output']]))
+                if map_dict_emotion[response_emotion['output']]==0:
+                    def get_data():
+                        db = client.mydb #establish connection to the 'sample_guide' db
+                        items = db.result_table.find({'flavor':'Protein/Fiber'},{'foodname':1,'_id':0}) # return all result from the 'planets' collection
+                        items = list(items)        
+                        return items
+                    data = get_data()
+                    i=0
+                    for items in data:
+                        st.subheader(f"{data[i]} ")
+                        i=i+1
+                if map_dict_emotion[response_emotion['output']]==1:
+                    def get_data():
+                        db = client.mydb #establish connection to the 'sample_guide' db
+                        items = db.result_table.find({'flavor':'Cereals'},{'foodname':1,'_id':0}) # return all result from the 'planets' collection
+                        items = list(items)        
+                        return items
+                    data = get_data()
+                    i=0
+                    for items in data:
+                        st.subheader(f"{data[i]} ")
+                        i=i+1
+                if map_dict_emotion[response_emotion['output']]==2:
+                    def get_data():
+                        db = client.mydb #establish connection to the 'sample_guide' db
+                        items = db.result_table.find({'flavor':'Fast foods'},{'foodname':1,'_id':0}) # return all result from the 'planets' collection
+                        items = list(items)        
+                        return items
+                    data = get_data()
+                    i=0
+                    for items in data:
+                        st.subheader(f"{data[i]} ")
+                        i=i+1
+                st.title("Predicted gender for the image is {}".format(map_dict_gender[response_gender['output']]))
+                st.title("Predicted age for the image is {}".format(map_dict_age[response_age['output']])) 
+                db=client.mydb
+                db.customer.update_one({"_id": "63e69468c0b93e30fcc783db" },{"$inc":{"count":1}})
+                st.text("")
 
     if choice=="🙍 Information":
 
@@ -251,8 +262,7 @@ if authentication_status :
             now = datetime.now()+timedelta(minutes=1.2)
             #pywhatkit.sendwhatmsg('+91 9481634956',"Hi this is "+str('John'),now.hour,now.minute,15,True,3)
             pywhatkit.sendwhatmsg('+91 9481634956',"Hi. We have food remaining and would like to donate it today. Please respond to initiate further communication.",now.hour,now.minute,15,True,3)
-
-
+    
     if choice=="FAQ's":
 
         if st.button('Is there any connection between food and mood?'):
@@ -266,4 +276,3 @@ if authentication_status :
 
         
 
-        
