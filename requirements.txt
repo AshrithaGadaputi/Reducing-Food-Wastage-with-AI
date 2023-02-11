@@ -14,3 +14,4 @@ pathlib
 requests
 pywhatkit
 datetime
+base64
