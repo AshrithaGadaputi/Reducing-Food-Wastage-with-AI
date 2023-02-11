@@ -12,6 +12,5 @@ pandas
 pillow
 pathlib
 requests
-pywhatkit
-datetime
+
 
