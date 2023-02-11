@@ -19,8 +19,8 @@ from pathlib import Path
 import streamlit_authenticator
 import requests
 import json
-import pywhatkit
-from datetime import datetime,timedelta
+#import pywhatkit
+#from datetime import datetime,timedelta
 import base64
 from pymongo import MongoClient
 
@@ -259,9 +259,9 @@ if authentication_status :
             for i in range(min(len(l),3)):
                 st.markdown(str(k[i][0])+" : "+str(v[i])+"   Distance : "+str(d[i])+" meters")
 
-            now = datetime.now()+timedelta(minutes=1.2)
+            #now = datetime.now()+timedelta(minutes=1.2)
             #pywhatkit.sendwhatmsg('+91 9481634956',"Hi this is "+str('John'),now.hour,now.minute,15,True,3)
-            pywhatkit.sendwhatmsg('+91 9481634956',"Hi. We have food remaining and would like to donate it today. Please respond to initiate further communication.",now.hour,now.minute,15,True,3)
+            #pywhatkit.sendwhatmsg('+91 9481634956',"Hi. We have food remaining and would like to donate it today. Please respond to initiate further communication.",now.hour,now.minute,15,True,3)
     
     if choice=="FAQ's":
 
